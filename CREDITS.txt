@@ -1,0 +1,6 @@
+CREDITS
+=======
+
+Gregor Imboden, gregor.imboden@wyona.com
+
+Michael Wechner, michael.wechner@wyona.com

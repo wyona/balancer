@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
+    "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
+
+<web-app>
+	    
+  <servlet>
+    <servlet-name>Balance Servlet</servlet-name>
+    <servlet-class>com.wyona.tomcat.cluster.BalanceServlet</servlet-class>
+    <description>
+        This servlet does loadbalancing for specified backend servers (see workers.xml).
+    </description>
+    <init-param>
+      <param-name>properties-file</param-name>
+      <param-value>WEB-INF/workers.xml</param-value>
+    </init-param>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>Balance Servlet</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>

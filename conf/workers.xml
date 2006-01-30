@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+
+<!-- RoundRobin, but sticky, right? Is there any other type supported? -->
+<workers balance-type="RoundRobin">
+
+  <worker>
+    <name>balancer1</name>
+    <type>http</type>
+    <host>127.0.0.1</host>
+    <port>9180</port>
+  </worker>
+
+  <worker>
+    <name>balancer2</name>
+    <type>http</type>
+    <host>127.0.0.1</host>
+    <port>9280</port>
+  </worker>
+
+  <!-- read/write timeout, 0 means infinite [sec] -->
+  <socket-timeout>0</socket-timeout>
+
+  <!-- failover allowed (which makes sense in the case of a cluster, but otherwise might lead to unexpected results!) -->
+  <failover>true</failover>
+  
+  <!-- maintenance intervall [sec] -->
+  <maintain>10</maintain>
+
+  <!-- read/write timeout for recovery threads, 0 means infinite [sec] -->
+  <recover-timeout>17</recover-timeout>
+
+  <!-- cookie tag used to implement sticky-sessions -->
+  <sticky-tag>JSESSIONID</sticky-tag>
+
+  <!-- the maximum number of connections allowed -->
+  <max-connections>57</max-connections>
+
+</workers>

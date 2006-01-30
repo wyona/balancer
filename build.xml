@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+
+<project name="balancer" default="compile">
+
+  <property file="local.build.properties"/>
+	
+  <property name="src.dir" value="src/java" />
+  <property name="build.dir" value="build" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="lib.dir" value="lib" />
+  <property name="conf.dir" value="conf"/>
+  <property name="templates.dir" value="templates"/>
+  
+  <property name="webapp.dir" value="${tomcat.home.dir}/webapps/ROOT"/>
+  <property name="webapp.webinf.dir" value="${webapp.dir}/WEB-INF"/>
+  <property name="webapp.log.dir" value="${webapp.webinf.dir}/logs"/>
+  <property name="webapp.classes.dir" value="${webapp.webinf.dir}/classes"/>
+  <property name="webapp.lib.dir" value="${webapp.webinf.dir}/lib"/>
+
+  <property name="log4j.properties" value="${webapp.classes.dir}/log4j.properties"/>
+  
+  <path id="classpath">
+    <fileset dir="${lib.dir}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <delete dir="${webapp.dir}"/>
+  </target>
+
+  <target name="compile">
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           debug="true"
+           classpathref="classpath"/>
+  </target>
+
+  <target name="install" depends="compile">
+    <copy todir="${webapp.classes.dir}">
+      <fileset dir="${classes.dir}">
+        <include name="**/*.class"/>
+      </fileset>
+    </copy>
+    <copy todir="${webapp.lib.dir}">
+      <fileset dir="${lib.dir}">
+        <include name="*.jar"/>
+        <exclude name="servlet-api.jar"/>	
+      </fileset>
+    </copy>
+    <copy todir="${webapp.webinf.dir}/templates">
+      <fileset dir="${templates.dir}" includes="**/*.html"/>
+    </copy>
+    <copy todir="${webapp.webinf.dir}" file="${conf.dir}/web.xml"/>
+    <copy todir="${webapp.webinf.dir}" file="${conf.dir}/workers.xml"/>
+    <copy todir="${webapp.classes.dir}" file="${conf.dir}/log4j.properties"/>
+    <replace file="${log4j.properties}" value="${webapp.log.dir}">
+      <replacetoken>@LOGDIR@</replacetoken>
+    </replace>	    
+    <mkdir dir="${webapp.log.dir}"/>
+  </target>
+
+</project>
