@@ -126,7 +126,9 @@ public class AdminServlet implements Servlet {
             worker.setAttribute("type", this.workers[i].getType());
             worker.setAttribute("count", String.valueOf(this.workers[i].getRequestCount()));
             worker.setAttribute("state", String.valueOf(this.workers[i].getState()));
-            worker.setAttribute("uri", this.workers[i].getUri());              
+            worker.setAttribute("uri", this.workers[i].getUri());        
+            worker.setAttribute("rttavg", Double.toString(this.workers[i].getAvgRoundTripTime()));
+            worker.setAttribute("rtt", Double.toString(this.workers[i].getLastRoundTripTime()));            
             status.appendChild(worker);
         }
         

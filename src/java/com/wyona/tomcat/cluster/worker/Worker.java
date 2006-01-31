@@ -4,7 +4,8 @@ import java.net.MalformedURLException;
 
 public class Worker {    
     
-    private int latency;
+    private long roundTripTime;
+    private long lastTripTime;    
     private long requestCount;
     private int state;    
     
@@ -31,7 +32,8 @@ public class Worker {
     final public static int PROXY_WORKER_FAILED = -1;
     
     public Worker() throws MalformedURLException {
-        this.latency = 0;
+        this.roundTripTime = 0;
+        this.lastTripTime = 0;
         this.requestCount = 0;
         this.state = UNUSED;
         this.name = DEFAULT_NAME;
@@ -66,20 +68,6 @@ public class Worker {
      */
     public synchronized void setHost(String host) {
         this.host = host;
-    }
-
-    /**
-     * @return Returns the latency.
-     */
-    public synchronized int getLatency() {
-        return latency;
-    }
-
-    /**
-     * @param latency The latency to set.
-     */
-    public synchronized void setLatency(int latency) {
-        this.latency = latency;
     }
 
     /**
@@ -138,12 +126,38 @@ public class Worker {
         this.type = type;
     }
     
+    /**
+     * @return Returns the worker uri
+     */
     public synchronized String getUri() {
         return this.type + "://" + this.host + ":" + this.port;
     }
     
+    /**
+     * @return Returns the average round trip time [millisec]
+     */
+    public synchronized double getAvgRoundTripTime() {
+        return (double) this.roundTripTime / this.requestCount;
+    }
+    
+    /**
+     * @return Returns the last round trip time [millisec]
+     */
+    public synchronized long getLastRoundTripTime() {
+        return this.lastTripTime;
+    }
+    
+    /**
+     * Add one round trip timeslice to the pool
+     * @param duration
+     */
+    public synchronized void addTrip(long duration) {
+        this.roundTripTime += duration;
+        this.lastTripTime = duration;
+    }
+        
     public String toString() {
         return "#Worker{" +name + "-" + type + "-" + host + "-" +
-            port + "-" + requestCount + "-" + latency + "}";
+            port + "-" + requestCount + "-" + "}";
     }
 }

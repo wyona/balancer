@@ -7,14 +7,14 @@
     <name>balancer1</name>
     <type>http</type>
     <host>127.0.0.1</host>
-    <port>9180</port>
+    <port>9018</port>
   </worker>
 
   <worker>
     <name>balancer2</name>
     <type>http</type>
     <host>127.0.0.1</host>
-    <port>9280</port>
+    <port>9028</port>
   </worker>
 
   <!-- read/write timeout, 0 means infinite [sec] -->

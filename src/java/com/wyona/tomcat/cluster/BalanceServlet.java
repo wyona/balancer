@@ -80,8 +80,10 @@ public class BalanceServlet implements Servlet {
      */
     public void service(ServletRequest req, ServletResponse res) throws IOException, ServletException {
         
+        long tripStart = System.currentTimeMillis();
+        
         HttpServletRequest httpreq = (HttpServletRequest) req;
-        HttpServletResponse httpres = (HttpServletResponse) res;                
+        HttpServletResponse httpres = (HttpServletResponse) res;                                
         
         int status = Worker.PROXY_WORKER_FAILED;
         Worker worker = null;
@@ -96,7 +98,9 @@ public class BalanceServlet implements Servlet {
         if (status == Worker.PROXY_WORKER_FAILED) {
             log.debug("all workers failed to proxy the request");
             TemplateUtil.writeTemplate(ctx, HttpStatus.SC_SERVICE_UNAVAILABLE, httpres.getOutputStream());
-            httpres.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);
+            httpres.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);            
+        } else {
+            worker.addTrip(System.currentTimeMillis() - tripStart);
         }
     }    
         

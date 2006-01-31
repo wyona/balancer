@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+
 <!DOCTYPE web-app
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.2//EN"
     "http://java.sun.com/j2ee/dtds/web-app_2_2.dtd">
 
 <web-app>
-	    
   <servlet>
     <servlet-name>Balance Servlet</servlet-name>
     <servlet-class>com.wyona.tomcat.cluster.BalanceServlet</servlet-class>
@@ -16,10 +16,23 @@
       <param-value>WEB-INF/workers.xml</param-value>
     </init-param>
   </servlet>
-  
+  <servlet>
+    <servlet-name>Admin Servlet</servlet-name>
+    <servlet-class>com.wyona.tomcat.cluster.AdminServlet</servlet-class>
+    <description>
+      Administrative interface for the Balance Servlet
+    </description>
+    <init-param>
+      <param-name>balancer-servlet-name</param-name>
+      <param-value>Balance Servlet</param-value>
+    </init-param>
+  </servlet>
   <servlet-mapping>
     <servlet-name>Balance Servlet</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
-
+  <servlet-mapping>
+    <servlet-name>Admin Servlet</servlet-name>
+    <url-pattern>/admin.html</url-pattern>
+  </servlet-mapping>
 </web-app>

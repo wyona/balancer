@@ -39,6 +39,8 @@
         <td>Name</td>
         <td>Status</td>
         <td>Request Count</td>
+        <td>RTT avg.</td>
+        <td>RTT last</td>
         <td>Type</td>
         <td>URL</td>
       </tr>
@@ -55,6 +57,8 @@
         </xsl:call-template>
       </td>
       <td><xsl:value-of select="@count"/></td>
+      <td><xsl:value-of select="@rttavg"/></td>
+      <td><xsl:value-of select="@rtt"/></td>
       <td><xsl:value-of select="@type"/></td>
       <td><a href="{@uri}"><xsl:value-of select="@uri"/></a></td>
     </tr>
