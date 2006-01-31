@@ -16,7 +16,7 @@
             color: #000000;
           }
           h1 { color: #0000ff; }
-          table { width: 70%; }
+          table { width: 80%; }
           #heading { background-color: #dedede; }
           #error { color: #ff0000; }
           #ok { color: #00ff00; }
