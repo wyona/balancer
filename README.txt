@@ -17,6 +17,7 @@
 
 	3) Deploy
 
+        4) Administration
 
 0) Requirements
 
@@ -47,3 +48,5 @@
 3) Deploy
 
 	ant install
+
+4) When the balancer is up and running you can reach the admin page at /admin.html
