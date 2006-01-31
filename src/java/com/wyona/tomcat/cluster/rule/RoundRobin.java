@@ -35,7 +35,6 @@ public class RoundRobin implements BalanceDirecitve {
             }             
         }
         if (nextWorker != null) {                    
-            nextWorker.incRequestCount();
             lastWorker = nextWorker;
         }
         return nextWorker;

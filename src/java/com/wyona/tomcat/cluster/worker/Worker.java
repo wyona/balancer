@@ -154,6 +154,7 @@ public class Worker {
     public synchronized void addTrip(long duration) {
         this.roundTripTime += duration;
         this.lastTripTime = duration;
+        this.incRequestCount();
     }
         
     public String toString() {
