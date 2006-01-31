@@ -5,7 +5,6 @@ package com.wyona.tomcat.util;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,6 +34,18 @@ public class TemplateUtil {
     }
     
     /**
+     * Checks if a template for the given name exists
+     * @param ctx
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public static boolean hasTemplate(ServletContext ctx, String name) throws IOException {
+        File template = new File(ctx.getRealPath(TEMPLATE_DIR), name);  
+        return template.exists() && template.isFile();
+    }
+    
+    /**
      * Returns the File object for this statusCode
      * @param ctx
      * @param statusCode
@@ -44,6 +55,21 @@ public class TemplateUtil {
     public static File getTemplateFile(ServletContext ctx, int statusCode) throws IOException {
         if (hasTemplate(ctx, statusCode)) {
             return new File(ctx.getRealPath(TEMPLATE_DIR), Integer.toString(statusCode) + ".html");
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the File object for the named template
+     * @param ctx
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public static File getTemplateFile(ServletContext ctx, String name) throws IOException {
+        if (hasTemplate(ctx, name)) {
+            return new File(ctx.getRealPath(TEMPLATE_DIR), name);
         } else {
             return null;
         }
@@ -58,6 +84,22 @@ public class TemplateUtil {
      */
     public static InputStream getTemplateInputStream(ServletContext ctx, int statusCode) throws IOException {
         File templateFile = getTemplateFile(ctx, statusCode);
+        if (templateFile != null) {
+            return new FileInputStream(templateFile);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Return the InputStream for this named template
+     * @param ctx
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public static InputStream getTemplateInputStream(ServletContext ctx, String name) throws IOException {
+        File templateFile = getTemplateFile(ctx, name);
         if (templateFile != null) {
             return new FileInputStream(templateFile);
         } else {

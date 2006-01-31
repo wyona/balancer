@@ -67,13 +67,15 @@ public class PropertyFile {
     }
     
     private void parse() throws ParserConfigurationException, SAXException, IOException {                
-        workers = new ArrayList();
+        
+        this.workers = new ArrayList();
         
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
-        Document config = builder.parse(propFile);
+        Document config = builder.parse(propFile);        
         
-        Node workers = config.getFirstChild();
+        NodeList list = config.getElementsByTagName("workers");        
+        Node workers = list.item(0);
         NamedNodeMap attrs = workers.getAttributes();
         
         balanceType = attrs.getNamedItem("balance-type").getNodeValue();

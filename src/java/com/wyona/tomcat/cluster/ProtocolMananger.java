@@ -74,4 +74,12 @@ public class ProtocolMananger {
     public HttpProxy getHttpProxy() {
         return this.httpProxy;
     }
+
+    /**
+     * @return Returns the activeConnections.
+     */
+    public int getActiveConnections() {
+        return activeConnections;
+    }    
+    
 }

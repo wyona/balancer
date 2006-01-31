@@ -42,10 +42,10 @@ public class BalanceServlet implements Servlet {
     
     private final static String COOKIE_HEADER_NAME = "cookie";
     
-    public BalanceServlet() {
-        super();      
-    }
-     
+    public final static String WORKERS_ATTR_NAME = "workers";
+    public final static String PROTOCOL_MANAGER_ATTR_NAME = "activeConnections";
+    public final static String PROPERTY_FILE_ATTR_NAME = "propertyFile";
+        
     public void init(ServletConfig servletConfig) throws ServletException {         
         
         ctx = servletConfig.getServletContext();
@@ -70,7 +70,9 @@ public class BalanceServlet implements Servlet {
         
         timer = new Timer();                    
         timer.scheduleAtFixedRate(new WorkerMaintainer(workers, protocolManager, propertyFile.getRecoverTimeout(), log),        
-                (long) (maintainIntervall * 1000), maintainIntervall * 1000);                
+                (long) (maintainIntervall * 1000), maintainIntervall * 1000);
+        
+        bindAttributes();
     }
     
     /**
@@ -140,7 +142,7 @@ public class BalanceServlet implements Servlet {
         return worker;
     }
     
-    public String getWorkerName(String cookie) {
+    private String getWorkerName(String cookie) {
         
         String workerName = null;
         
@@ -161,7 +163,7 @@ public class BalanceServlet implements Servlet {
         return workerName;
     }
     
-    public Worker getAssignedWorker(String workerName) {
+    private Worker getAssignedWorker(String workerName) {
         
         Worker assignedWorker = null;
         for (int i=0; i<this.workers.length && assignedWorker == null; i++) {
@@ -175,6 +177,16 @@ public class BalanceServlet implements Servlet {
         
         return assignedWorker;
     }
+    
+    /**
+     * Bind servlet objects to the servlet context so other
+     * servlets can make use of them
+     */
+    private void bindAttributes() {
+        this.ctx.setAttribute(WORKERS_ATTR_NAME, this.workers);
+        this.ctx.setAttribute(PROTOCOL_MANAGER_ATTR_NAME, this.protocolManager);
+        this.ctx.setAttribute(PROPERTY_FILE_ATTR_NAME, this.propertyFile);
+    }    
     
     public ServletConfig getServletConfig() {
         // TODO Auto-generated method stub

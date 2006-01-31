@@ -51,7 +51,7 @@
       </fileset>
     </copy>
     <copy todir="${webapp.webinf.dir}/templates">
-      <fileset dir="${templates.dir}" includes="**/*.html"/>
+      <fileset dir="${templates.dir}" includes="**/*"/>
     </copy>
     <copy todir="${webapp.webinf.dir}" file="${conf.dir}/web.xml"/>
     <copy todir="${webapp.webinf.dir}" file="${conf.dir}/workers.xml"/>
