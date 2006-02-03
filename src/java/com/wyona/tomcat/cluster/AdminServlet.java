@@ -107,7 +107,7 @@ public class AdminServlet implements Servlet {
         } catch (ParserConfigurationException e) {
             throw new ServletException(e);
         } catch (TransformerConfigurationException e) {
-            log.debug(e.fillInStackTrace());
+            log.error(e.fillInStackTrace());
             throw new ServletException(e);
         } catch (TransformerException e) {
             throw new ServletException(e);
@@ -135,6 +135,10 @@ public class AdminServlet implements Servlet {
         Element connections = doc.createElement("connections");
         connections.setAttribute("count", String.valueOf(this.protocolManager.getActiveConnections()));
         status.appendChild(connections);
+
+        Element refusedConnections = doc.createElement("refused-connections");
+        refusedConnections.setAttribute("count", String.valueOf(this.protocolManager.getRefusedConnections()));
+        status.appendChild(refusedConnections);
         
         Element failover = doc.createElement("failover");
         failover.setAttribute("enabled", Boolean.toString(this.propertyFile.getFailover()));
@@ -151,8 +155,7 @@ public class AdminServlet implements Servlet {
         Element maintainIntervall = doc.createElement("maintain-intervall");
         maintainIntervall.setAttribute("count", Integer.toString(this.propertyFile.getMaintainIntervall()));
         status.appendChild(maintainIntervall);        
-    }
-    
+    }        
     
     /* (non-Javadoc)
      * @see javax.servlet.Servlet#getServletInfo()

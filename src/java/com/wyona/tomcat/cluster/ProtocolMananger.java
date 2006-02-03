@@ -23,6 +23,7 @@ public class ProtocolMananger {
     
     private int activeConnections;
     private int maxConnections;    
+    private long refusedConnections;
     
     private PropertyFile propertyFile;
     private Logger log;
@@ -32,6 +33,7 @@ public class ProtocolMananger {
         this.propertyFile = propertyFile;
         this.log = logger;
         this.activeConnections = 0;
+        this.refusedConnections = 0;
         this.maxConnections = this.propertyFile.getMaxConnections();
         httpProxy = new HttpProxy(ctx, this.propertyFile, this.log);        
     }    
@@ -52,7 +54,9 @@ public class ProtocolMananger {
                 log.error("protocol not implemented: " + PROTO_AJP14);
             }
             deactivateConnection();
-        }                        
+        } else {
+            incRefusedConnections();
+        }
         
         return status;        
     }
@@ -71,6 +75,10 @@ public class ProtocolMananger {
         this.activeConnections -= 1;    
     }
     
+    private synchronized void incRefusedConnections() {
+        this.refusedConnections += 1;
+    }
+    
     public HttpProxy getHttpProxy() {
         return this.httpProxy;
     }
@@ -79,7 +87,14 @@ public class ProtocolMananger {
      * @return Returns the activeConnections.
      */
     public int getActiveConnections() {
-        return activeConnections;
+        return this.activeConnections;
     }    
+    
+    /**
+     * @return Returns the refusecConnections
+     */
+    public long getRefusedConnections() {
+        return this.refusedConnections;
+    }
     
 }

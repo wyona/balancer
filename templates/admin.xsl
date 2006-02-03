@@ -11,7 +11,7 @@
         <style type="text/css">
           body { background-color: #ffffff; font-family: sans-serif; color: #000000; }
           h1 { color: #0000ff; }
-          table { width: 80%; }
+          #overview { border: 1px solid #dedede; width: 80%; border-collapse: collapse; }
           #heading { background-color: #dedede; }
           #error { color: #ff0000; }
           #ok { color: #00ff00; }
@@ -21,15 +21,15 @@
         <h1>Balancer status</h1>
         <xsl:call-template name="worker-overview"/>
         <br/>
-        <table>
-          <xsl:apply-templates select="failover|balance-type|max-connections|connections|maintain-intervall"/>
+        <table id="opts">
+          <xsl:apply-templates select="failover|balance-type|max-connections|refused-connections|connections|maintain-intervall"/>
         </table>
       </body>
     </html>
   </xsl:template>
 
   <xsl:template name="worker-overview">
-    <table>
+    <table id="overview">
       <tr id="heading">
         <td>Name</td>
         <td>Status</td>
@@ -71,31 +71,43 @@
 
   <xsl:template match="failover">
     <tr>
-      <td>failover: <xsl:value-of select="@enabled"/></td>
+      <td>Failover</td>
+      <td><xsl:value-of select="@enabled"/></td>
     </tr>
   </xsl:template>
 
   <xsl:template match="balance-type">
     <tr>
-      <td>balance-type: <xsl:value-of select="@type"/></td>
+      <td>Balance type</td>
+      <td><xsl:value-of select="@type"/></td>
     </tr>
   </xsl:template>
 
   <xsl:template match="max-connections">
     <tr>
-      <td>max-connections: <xsl:value-of select="@count"/></td>
+      <td>Max. connections</td>
+      <td><xsl:value-of select="@count"/></td>
+    </tr>
+  </xsl:template>
+
+  <xsl:template match="refused-connections">
+    <tr>
+      <td><div id="error">Refused connections</div></td>
+      <td><div id="error"><xsl:value-of select="@count"/></div></td>
     </tr>
   </xsl:template>
 
   <xsl:template match="connections">
     <tr>
-      <td>active-connections: <xsl:value-of select="@count"/></td>
+      <td>Active connections</td>
+      <td><xsl:value-of select="@count"/></td>
     </tr>
   </xsl:template>
 
   <xsl:template match="maintain-intervall">
     <tr>
-      <td>maintain-intervall: <xsl:value-of select="@count"/></td>
+      <td>Maintain intervall</td>
+      <td><xsl:value-of select="@count"/></td>
     </tr>
   </xsl:template>
 
