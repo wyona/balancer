@@ -5,16 +5,11 @@
     xmlns="http://www.w3.org/1999/xhtml">
 
   <xsl:template match="/status">
-
     <html>
       <head>
         <title>Balancer - Status</title>
         <style type="text/css">
-          body {
-            background-color: #ffffff;
-            font-family: sans-serif;
-            color: #000000;
-          }
+          body { background-color: #ffffff; font-family: sans-serif; color: #000000; }
           h1 { color: #0000ff; }
           table { width: 80%; }
           #heading { background-color: #dedede; }
@@ -39,8 +34,8 @@
         <td>Name</td>
         <td>Status</td>
         <td>Request Count</td>
-        <td>RTT avg.</td>
-        <td>RTT last</td>
+        <td>RTT avg. [ms]</td>
+        <td>RTT last [ms]</td>
         <td>Type</td>
         <td>URL</td>
       </tr>
