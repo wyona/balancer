@@ -137,7 +137,11 @@ public class Worker {
      * @return Returns the average round trip time [millisec]
      */
     public synchronized double getAvgRoundTripTime() {
-        return (double) this.roundTripTime / this.requestCount;
+        if (this.requestCount == 0) {
+            return (double)0.0;
+        } else {
+            return (double) this.roundTripTime / this.requestCount;
+        }
     }
     
     /**

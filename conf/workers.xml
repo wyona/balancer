@@ -1,7 +1,15 @@
 <?xml version="1.0"?>
 
-<!-- RoundRobin, but sticky, right? Is there any other type supported? -->
-<workers balance-type="RoundRobin">
+<!--
+
+  Available balance-type's
+
+  RoundRobin    Round Robin Directive
+  RTTEquiv      RTT Equalizer
+
+-->
+
+<workers balance-type="RTTEquiv">
 
   <worker>
     <name>balancer1</name>

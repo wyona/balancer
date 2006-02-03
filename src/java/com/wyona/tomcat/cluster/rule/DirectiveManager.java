@@ -1,14 +1,16 @@
 package com.wyona.tomcat.cluster.rule;
 
+import java.util.HashMap;
+
 import com.wyona.tomcat.cluster.worker.Worker;
 
 public class DirectiveManager {
     
-    RoundRobin roundRobin;
+    HashMap directives = new HashMap();    
     
-    public DirectiveManager() {
-        super();
-        roundRobin = new RoundRobin();
+    public DirectiveManager() {                
+        directives.put(RoundRobin.name, new RoundRobin());
+        directives.put(RTTEquiv.name, new RTTEquiv());        
     }
     
     public String getDefaultDirective() {
@@ -16,19 +18,16 @@ public class DirectiveManager {
     }
     
     public boolean isValidDirecive(String d) {
-        if (d.equals(RoundRobin.name)) {
-            return true;
-        } else {
-            return false;
-        }
+        return directives.containsKey(d);
     }
     
     public Worker getNextWorker(String d, Worker[] list) {
-        if (d.equals(RoundRobin.name)) {
-            return this.roundRobin.getNextWorker(list);
-        } else { 
+        BalanceDirective directive = (BalanceDirective) directives.get(d);
+        if (directive != null) {
+            return directive.getNextWorker(list);
+        } else {
             return null;
-        }
+        }        
     }
     
 }

@@ -1,5 +1,4 @@
 TODO
 ====
 
-- Write a status page
 - Write an admin page
