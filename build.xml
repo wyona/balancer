@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="balancer" default="compile">
+<project name="balancer" default="install">
 
   <property file="local.build.properties"/>
 	
@@ -30,7 +30,7 @@
     <delete dir="${webapp.dir}"/>
   </target>
 
-  <target name="compile">
+  <target name="compile" depends="clean">
     <mkdir dir="${classes.dir}"/>
     <javac srcdir="${src.dir}"
            destdir="${classes.dir}"
