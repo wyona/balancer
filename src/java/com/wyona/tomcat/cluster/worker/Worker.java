@@ -28,6 +28,7 @@ public class Worker {
     final public static int ALIVE = 1;    
     final public static int TRANSPORT_ERROR = 2;   
     final public static int PROTOCOL_ERROR = 3; 
+    final public static int DEACTIVATED = 4;     
     
     final public static int PROXY_WORKER_FAILED = -1;
     

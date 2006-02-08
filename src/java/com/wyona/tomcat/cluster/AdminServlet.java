@@ -55,7 +55,7 @@ public class AdminServlet implements Servlet {
         
         log = Logger.getLogger(BalanceServlet.class);  
         
-        this.ctx = arg0.getServletContext();        
+        this.ctx = arg0.getServletContext();     
         ServletContext balancerContext = this.ctx.getContext("/");
         if (balancerContext == null) {
             throw new ServletException("unable to get servlet context for url: /");
@@ -66,7 +66,7 @@ public class AdminServlet implements Servlet {
         this.workers = (Worker[]) balancerContext.getAttribute(BalanceServlet.WORKERS_ATTR_NAME);
         
         if (this.propertyFile == null || this.protocolManager == null || this.workers == null) {
-            throw new ServletException("servlet context does not contains all bindings");
+            throw new ServletException("servlet context does not contain all bindings");
         }
     }
 
@@ -82,6 +82,8 @@ public class AdminServlet implements Servlet {
      * @see javax.servlet.Servlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
      */
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {                      
+        
+        handleToggleStatus(req);
         
         OutputStream out = res.getOutputStream();
         
@@ -116,6 +118,19 @@ public class AdminServlet implements Servlet {
         out.close();
     }
     
+    private void handleToggleStatus(ServletRequest req) {
+        for (int i=0; i<this.workers.length; i++) {
+            String togglePar = req.getParameter(this.workers[i].getName());
+            if (togglePar != null) {
+                if (togglePar.equalsIgnoreCase("off")) {
+                    this.workers[i].setState(Worker.DEACTIVATED);
+                } else if (togglePar.equalsIgnoreCase("on")) {
+                    this.workers[i].setState(Worker.UNUSED);
+                }
+            }
+        }
+    }
+    
     private void createStatusDocument(Document doc) {        
         
         Node status = doc.appendChild(doc.createElement("status"));
@@ -126,7 +141,7 @@ public class AdminServlet implements Servlet {
             worker.setAttribute("type", this.workers[i].getType());
             worker.setAttribute("count", String.valueOf(this.workers[i].getRequestCount()));
             worker.setAttribute("state", String.valueOf(this.workers[i].getState()));
-            worker.setAttribute("uri", this.workers[i].getUri());        
+            worker.setAttribute("uri", this.workers[i].getUri());           
             worker.setAttribute("rttavg", Double.toString(this.workers[i].getAvgRoundTripTime()));
             worker.setAttribute("rtt", Double.toString(this.workers[i].getLastRoundTripTime()));            
             status.appendChild(worker);

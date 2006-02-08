@@ -67,7 +67,6 @@ public class HttpProxy implements ProtocolProxy {
     static final String HEADER_COOKIE = "Cookie";
     static final String HEADER_CONTENT_LENGTH = "Content-Length";    
     
-    private String stickyTag;
     private int maxConnections;
     private int socketTimeout;
     private Logger log;
@@ -78,7 +77,6 @@ public class HttpProxy implements ProtocolProxy {
         this.maxConnections = propertyFile.getMaxConnections();
         this.socketTimeout = propertyFile.getSocketTimeout();
         this.log = logger;
-        this.stickyTag = propertyFile.getStickyTag();
         this.excludeHeaders = new ArrayList();
         connectionManager = new MultiThreadedHttpConnectionManager();
         connectionManager.setMaxTotalConnections(this.maxConnections);
