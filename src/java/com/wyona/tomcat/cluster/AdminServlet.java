@@ -169,7 +169,15 @@ public class AdminServlet implements Servlet {
         
         Element maintainIntervall = doc.createElement("maintain-intervall");
         maintainIntervall.setAttribute("count", Integer.toString(this.propertyFile.getMaintainIntervall()));
-        status.appendChild(maintainIntervall);        
+        status.appendChild(maintainIntervall);
+        
+        Element osVersion = doc.createElement("os-version");
+        osVersion.setAttribute("type",
+                System.getProperty("os.name") + " "  + 
+                System.getProperty("os.version") + " " +
+                System.getProperty("os.arch"));
+        status.appendChild(osVersion);
+        
     }        
     
     /* (non-Javadoc)

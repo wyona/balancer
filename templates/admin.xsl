@@ -26,6 +26,8 @@
         <table id="opts">
           <xsl:apply-templates select="failover|balance-type|max-connections|refused-connections|connections|maintain-intervall"/>
         </table>
+        <br/>
+        <xsl:value-of select="os-version/@type"/>
       </body>
     </html>
   </xsl:template>
