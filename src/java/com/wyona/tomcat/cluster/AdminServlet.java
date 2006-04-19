@@ -121,12 +121,13 @@ public class AdminServlet implements Servlet {
     private void handleToggleStatus(ServletRequest req) {
         for (int i=0; i<this.workers.length; i++) {
             String togglePar = req.getParameter(this.workers[i].getName());
+            log.error("Toggle Parameter: " + togglePar);
             if (togglePar != null) {
                 //if (togglePar.equalsIgnoreCase("off")) {
-                if (togglePar.equals("Turn+Off")) {
+                if (togglePar.equals("Turn Off")) {
                     this.workers[i].setState(Worker.DEACTIVATED);
                 //} else if (togglePar.equalsIgnoreCase("on")) {
-                } else if (togglePar.equals("Turn+On")) {
+                } else if (togglePar.equals("Turn On")) {
                     this.workers[i].setState(Worker.UNUSED);
                 }
             }
