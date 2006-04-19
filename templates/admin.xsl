@@ -66,10 +66,10 @@
       <td align="center">
         <xsl:choose>
           <xsl:when test="@state=4">
-            <input type="submit" name="{@name}" value="On"/>
+            <input type="submit" name="{@name}" value="Turn On"/>
           </xsl:when>
           <xsl:otherwise>
-            <input type="submit" name="{@name}" value="Off"/>
+            <input type="submit" name="{@name}" value="Turn Off"/>
           </xsl:otherwise>
         </xsl:choose>
       </td>

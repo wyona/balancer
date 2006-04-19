@@ -12,14 +12,16 @@
 <workers balance-type="RTTEquiv">
 
   <worker>
-    <name>balancer1</name>
+    <!-- NOTE: Needs to be the same as within jvmRoute of TOMCAT-CNODE1/conf/server.xml -->
+    <name>cnode1</name>
     <type>http</type>
     <host>127.0.0.1</host>
     <port>9018</port>
   </worker>
 
   <worker>
-    <name>balancer2</name>
+    <!-- NOTE: Needs to be the same as within jvmRoute of TOMCAT-CNODE2/conf/server.xml -->
+    <name>cnode2</name>
     <type>http</type>
     <host>127.0.0.1</host>
     <port>9028</port>
