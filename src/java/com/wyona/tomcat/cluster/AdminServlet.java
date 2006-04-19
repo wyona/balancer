@@ -122,9 +122,11 @@ public class AdminServlet implements Servlet {
         for (int i=0; i<this.workers.length; i++) {
             String togglePar = req.getParameter(this.workers[i].getName());
             if (togglePar != null) {
-                if (togglePar.equalsIgnoreCase("off")) {
+                //if (togglePar.equalsIgnoreCase("off")) {
+                if (togglePar.equals("Turn+Off")) {
                     this.workers[i].setState(Worker.DEACTIVATED);
-                } else if (togglePar.equalsIgnoreCase("on")) {
+                //} else if (togglePar.equalsIgnoreCase("on")) {
+                } else if (togglePar.equals("Turn+On")) {
                     this.workers[i].setState(Worker.UNUSED);
                 }
             }
