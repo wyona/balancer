@@ -21,9 +21,10 @@
 
 0) Requirements
 
-	- JDK 1.4.2
+	- JDK 1.4.2_10
         - Apache Jakarta Tomcat 5.0.x
         - Cluster (e.g. https://svn.wyona.com/repos/public/erp/trunk)
+        - below JDK 1.4.2_10 strange java.io.IOException: Bogus chunk size
 
 	
 1) Configure
