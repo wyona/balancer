@@ -55,7 +55,8 @@ public class HttpProxy implements ProtocolProxy {
     /* HTTP Headers that will be filtered out from balancer responses */
     static final String[] FILTERED_HEADERS = {
         "X-Cocoon-Version",
-        "Server"
+        "Server",
+        "Transfer-Encoding"
     };
     
     /* Servlet container host information */ 
@@ -134,16 +135,25 @@ public class HttpProxy implements ProtocolProxy {
         
         setHttpMethodOptions(method);        
         try {
-            excludeHeaders.clear(); 
+            
+            // request to the backend
+            excludeHeaders.clear();             
             copyRequestBody(servletRequest, method);
             rewriteRequestHeaders(servletRequest, method);            
             copyRequestHeaders(servletRequest, method);  
             status = client.executeMethod(method);            
+           
+            // response to the client
             servletResponse.setStatus(status);            
-            excludeHeaders.clear();                 
-            copyResponseBody(servletResponse, method, status);
+            excludeHeaders.clear();
+            // send our own page for error messages with a defined template
+            if (status >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {
+                excludeHeaders.add(HEADER_CONTENT_LENGTH);
+            }
             rewriteResponseHeaders(servletResponse, method, status);
-            copyResponseHeaders(servletResponse, method);    
+            copyResponseHeaders(servletResponse, method);
+            copyResponseBody(servletResponse, method, status);
+            
         } catch (HttpException e) {
             success = false;               
             worker.setState(Worker.PROTOCOL_ERROR);
@@ -159,7 +169,7 @@ public class HttpProxy implements ProtocolProxy {
                 status = Worker.PROXY_WORKER_FAILED;
             }
             log.debug("released connection");
-            method.releaseConnection();            
+            method.releaseConnection();        
         }
         return status;
     }
@@ -209,14 +219,15 @@ public class HttpProxy implements ProtocolProxy {
     }
     
     private void copyResponseHeaders(HttpServletResponse servletResponse, HttpMethod method) {
-        Header[] headers = method.getResponseHeaders();                            
-        for (int i=0; i<headers.length; i++) {            
-            if (!ignoreHeader(headers[i].getName())) {
-                if (servletResponse.containsHeader(headers[i].getName())) { 
+        Header[] headers = method.getResponseHeaders();
+       
+        for (int i=0; i<headers.length; i++) {                       
+            if (!ignoreHeader(headers[i].getName())) {              
+                if (servletResponse.containsHeader(headers[i].getName())) {  
                     servletResponse.setHeader(headers[i].getName(), headers[i].getValue());
-                } else{ 
+                } else{
                     servletResponse.addHeader(headers[i].getName(), headers[i].getValue());
-                }                
+                } 
             }
         }        
     }
@@ -231,17 +242,18 @@ public class HttpProxy implements ProtocolProxy {
                 // send our own page for error messages with a defined template
                 if (status >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {                    
                     TemplateUtil.writeTemplate(ctx, status, servletResponse.getOutputStream());
-                    excludeHeaders.add(HEADER_CONTENT_LENGTH);
                 } else {
                     InputStream in = method.getResponseBodyAsStream();
+                    OutputStream out = servletResponse.getOutputStream();                    
+
                     if (in != null) {
-                        OutputStream out = servletResponse.getOutputStream();
                         int rb;
                         byte[] buf = new byte[4096];                    
                         while ((rb = in.read(buf)) > 0) {
                             out.write(buf, 0, rb);
-                        }
-                    }
+                        }             
+                        out.close();
+                    }                    
                 }
             break;
         }
@@ -268,7 +280,7 @@ public class HttpProxy implements ProtocolProxy {
             exclude = true;
         } else {
             for (int i=0; i<FILTERED_HEADERS.length && !exclude; i++) {
-                if (name.equals(FILTERED_HEADERS[i])) {
+                if (name.equalsIgnoreCase(FILTERED_HEADERS[i])) {
                     exclude = true;
                 }
             }
