@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.HttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -37,6 +38,7 @@ public class HttpProxy implements ProtocolProxy {
     static final String METHOD_GET = "GET";
     static final String METHOD_POST = "POST";
     static final String METHOD_PUT = "PUT";
+    static final String METHOD_DELETE = "DELETE";
     
     /* the servlet context */
     ServletContext ctx;
@@ -52,7 +54,7 @@ public class HttpProxy implements ProtocolProxy {
     /* List of modified request/response headers that will not be copied*/
     private List excludeHeaders;
 
-    /* HTTP Headers that will be filtered out from balancer responses */
+    /* HTTP Headers that will be filtered out from backend responses */
     static final String[] FILTERED_HEADERS = {
         "X-Cocoon-Version",
         "Server",
@@ -96,17 +98,10 @@ public class HttpProxy implements ProtocolProxy {
         
         setServerInfo(servletRequest);
         
+        // the default status is failed
         int status = Worker.PROXY_WORKER_FAILED;        
-        String requestMethod = servletRequest.getMethod();
-        
-        if (requestMethod.equals(METHOD_GET) ||
-                requestMethod.equals(METHOD_POST) ||
-                requestMethod.equals(METHOD_PUT)) {                
-            status = proxyHttpRequest(worker, servletRequest, servletResponse);
-        } else {
-            log.error("request method not implemented " + requestMethod);
-            status = HttpStatus.SC_METHOD_FAILURE;
-        }        
+               
+        status = proxyHttpRequest(worker, servletRequest, servletResponse);
         
         return status;
     }
@@ -131,6 +126,11 @@ public class HttpProxy implements ProtocolProxy {
             method = new PostMethod(worker.getUri());            
         } else if (servletRequest.getMethod().equals(METHOD_PUT)) {
             method = new PutMethod(worker.getUri());
+        }  else if (servletRequest.getMethod().equals(METHOD_DELETE)) {
+            method = new DeleteMethod(worker.getUri());
+        } else {
+            log.error("request method not implemented: " + servletRequest.getMethod());
+            return HttpStatus.SC_METHOD_NOT_ALLOWED; 
         }
         
         setHttpMethodOptions(method);        

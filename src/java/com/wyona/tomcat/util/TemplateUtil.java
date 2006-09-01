@@ -122,5 +122,6 @@ public class TemplateUtil {
             out.write(buf, 0, rb);
         }
         in.close();
+        out.close();
     }    
 }
