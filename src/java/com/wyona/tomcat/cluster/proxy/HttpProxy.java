@@ -21,7 +21,9 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -39,6 +41,19 @@ public class HttpProxy implements ProtocolProxy {
     static final String METHOD_POST = "POST";
     static final String METHOD_PUT = "PUT";
     static final String METHOD_DELETE = "DELETE";
+    static final String METHOD_HEAD = "HEAD";
+    
+    /* Additional HTTP methods that will be forwarded to the backend */
+    static final String[] ADDTIIONAL_METHODS = {
+        // WebDAV as in RFC-2518
+        "PROPFIND",
+        "PROPPATCH",
+        "MKCOL",
+        "COPY",
+        "MOVE",
+        "LOCK",
+        "UNLOCK"
+    };
     
     /* the servlet context */
     ServletContext ctx;
@@ -60,7 +75,7 @@ public class HttpProxy implements ProtocolProxy {
         "Server",
         "Transfer-Encoding"
     };
-    
+        
     /* Servlet container host information */ 
     private String hostname;
     private int port;
@@ -83,7 +98,7 @@ public class HttpProxy implements ProtocolProxy {
         this.excludeHeaders = new ArrayList();
         connectionManager = new MultiThreadedHttpConnectionManager();
         connectionManager.setMaxTotalConnections(this.maxConnections);
-        client = new HttpClient(connectionManager);  
+        client = new HttpClient(connectionManager);
     }
     
     /**
@@ -128,9 +143,15 @@ public class HttpProxy implements ProtocolProxy {
             method = new PutMethod(worker.getUri());
         }  else if (servletRequest.getMethod().equals(METHOD_DELETE)) {
             method = new DeleteMethod(worker.getUri());
+        } else if (servletRequest.getMethod().equals(METHOD_HEAD)) {
+            method = new HeadMethod(worker.getUri());
         } else {
-            log.error("request method not implemented: " + servletRequest.getMethod());
-            return HttpStatus.SC_METHOD_NOT_ALLOWED; 
+            // try methods specified in ADDITIONAL_METHOD
+            method = createAdditionalMethod(servletRequest.getMethod(), worker.getUri());
+            if (method == null) {
+                log.error("request method not implemented: " + servletRequest.getMethod());
+                return HttpStatus.SC_METHOD_NOT_ALLOWED;
+            }
         }
         
         setHttpMethodOptions(method);        
@@ -174,6 +195,18 @@ public class HttpProxy implements ProtocolProxy {
         return status;
     }
 
+    private HttpMethod createAdditionalMethod(String methodName, String uri) {
+        HttpMethod additionalMethod = null;
+        
+        for (int i=0; i<HttpProxy.ADDTIIONAL_METHODS.length && additionalMethod == null; i++) {
+            if (HttpProxy.ADDTIIONAL_METHODS[i].equals(methodName)) {
+                additionalMethod = new ConfigurableHttpMethod(uri, methodName);
+            }
+        }
+        
+        return additionalMethod;
+    }
+    
     private void setHttpMethodOptions(HttpMethod method) {
         method.setFollowRedirects(false);          
         method.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -187,7 +220,9 @@ public class HttpProxy implements ProtocolProxy {
             ((PostMethod)method).setRequestBody(servletRequest.getInputStream());
         } else if (servletRequest.getMethod().equals(METHOD_PUT)) {
             ((PutMethod)method).setRequestBody(servletRequest.getInputStream());
-        }        
+        } else if (servletRequest.getInputStream() != null && method instanceof ConfigurableHttpMethod) {
+            ((ConfigurableHttpMethod)method).setRequestBody(servletRequest.getInputStream());
+        }
     }
     
     private void copyRequestHeaders(HttpServletRequest servletRequest, HttpMethod method) {
