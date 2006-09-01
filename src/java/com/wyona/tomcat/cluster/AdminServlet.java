@@ -48,6 +48,8 @@ public class AdminServlet implements Servlet {
     
     private final static String ADMIN_STYLESHEET = "admin.xsl";
     
+    private final static String BALANCER_VERSION = "Balancer v0.1.0";
+    
     /* (non-Javadoc)
      * @see javax.servlet.Servlet#init(javax.servlet.ServletConfig)
      */
@@ -181,6 +183,9 @@ public class AdminServlet implements Servlet {
                 System.getProperty("os.arch"));
         status.appendChild(osVersion);
         
+        Element balancerVersion = doc.createElement("balancer");
+        balancerVersion.setAttribute("version", BALANCER_VERSION);
+        status.appendChild(balancerVersion);        
     }        
     
     /* (non-Javadoc)

@@ -27,7 +27,10 @@
           <xsl:apply-templates select="failover|balance-type|max-connections|refused-connections|connections|maintain-intervall"/>
         </table>
         <br/>
-        <xsl:value-of select="os-version/@type"/>
+        <i>
+          <xsl:value-of select="os-version/@type"/>&#160;
+          <xsl:value-of select="balancer/@version"/>
+        </i>
       </body>
     </html>
   </xsl:template>
