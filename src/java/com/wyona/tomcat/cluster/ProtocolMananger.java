@@ -46,12 +46,9 @@ public class ProtocolMananger {
         if (activateConnection()) {
             if (worker.getType().equals(PROTO_HTTP)) {
                 status = httpProxy.proxyServletRequest(worker, httpRequest, httpResponse);
-            } else if (worker.getType().equals(PROTO_AJP13)) {
-                log.error("protocol not implemented: " + PROTO_AJP13);
-                status = HttpStatus.SC_NOT_IMPLEMENTED;
-            } else if (worker.getType().equals(PROTO_AJP14)) {
-                status = HttpStatus.SC_NOT_IMPLEMENTED;
-                log.error("protocol not implemented: " + PROTO_AJP14);
+            } else {
+                log.error("protocol not implemented: " + worker.getType());
+                status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
             }
             deactivateConnection();
         } else {
