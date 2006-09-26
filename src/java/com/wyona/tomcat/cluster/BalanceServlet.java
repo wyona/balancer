@@ -39,6 +39,9 @@ public class BalanceServlet implements Servlet {
     
     /** The directive manager */
     private DirectiveManager directiveManager;   
+
+    /** The request logger */
+    private RequestLogger requestLogger;
     
     private final static String COOKIE_HEADER_NAME = "cookie";
     
@@ -67,6 +70,8 @@ public class BalanceServlet implements Servlet {
         }
         
         protocolManager = new ProtocolMananger(ctx, propertyFile, log);
+
+        requestLogger = new RequestLogger(propertyFile, log);
         
         timer = new Timer();                    
         timer.scheduleAtFixedRate(new WorkerMaintainer(workers, protocolManager, propertyFile.getRecoverTimeout(), log),        
@@ -97,11 +102,14 @@ public class BalanceServlet implements Servlet {
         
         if (status == Worker.PROXY_WORKER_FAILED) {
             log.debug("all workers failed to proxy the request");
-            TemplateUtil.writeTemplate(ctx, HttpStatus.SC_SERVICE_UNAVAILABLE, httpres.getOutputStream());
-            httpres.setStatus(HttpStatus.SC_SERVICE_UNAVAILABLE);            
+            status = HttpStatus.SC_SERVICE_UNAVAILABLE;
+            TemplateUtil.writeTemplate(ctx, status, httpres.getOutputStream());
+            httpres.setStatus(status);            
         } else {
             worker.addTrip(System.currentTimeMillis() - tripStart);
         }
+        
+        requestLogger.logHttpRequest(httpreq, status, 0);
     }    
         
     /**

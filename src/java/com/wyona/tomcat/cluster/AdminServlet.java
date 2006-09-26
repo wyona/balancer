@@ -48,7 +48,7 @@ public class AdminServlet implements Servlet {
     
     private final static String ADMIN_STYLESHEET = "admin.xsl";
     
-    private final static String BALANCER_VERSION = "Balancer v0.1.0";
+    private final static String BALANCER_VERSION = "Balancer v0.2";
     
     /* (non-Javadoc)
      * @see javax.servlet.Servlet#init(javax.servlet.ServletConfig)

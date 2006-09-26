@@ -16,7 +16,7 @@
     <name>cnode1</name>
     <type>http</type>
     <host>127.0.0.1</host>
-    <port>9018</port>
+    <port>9190</port>
   </worker>
 
   <worker>
@@ -24,11 +24,11 @@
     <name>cnode2</name>
     <type>http</type>
     <host>127.0.0.1</host>
-    <port>9028</port>
+    <port>9290</port>
   </worker>
 
-  <!-- read/write timeout, 0 means infinite [sec] -->
-  <socket-timeout>0</socket-timeout>
+  <!-- socket timeout, 0 means infinite [ms] -->
+  <socket-timeout>5000</socket-timeout>
 
   <!-- failover allowed (which makes sense in the case of a cluster, but otherwise might lead to unexpected results!) -->
   <failover>true</failover>
@@ -36,13 +36,16 @@
   <!-- maintenance intervall [sec] -->
   <maintain>10</maintain>
 
-  <!-- read/write timeout for recovery threads, 0 means infinite [sec] -->
-  <recover-timeout>17</recover-timeout>
+  <!-- socket timeout for recovery threads, 0 means infinite [ms] -->
+  <recover-timeout>5000</recover-timeout>
 
   <!-- cookie tag used to implement sticky-sessions -->
   <sticky-tag>JSESSIONID</sticky-tag>
 
-  <!-- the maximum number of connections allowed -->
+  <!-- the maximum number of concurrent connections allowed -->
   <max-connections>57</max-connections>
+  
+  <!-- the combined access log file -->
+  <logfile>/home/greg/access.log</logfile>
 
 </workers>

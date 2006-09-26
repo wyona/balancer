@@ -37,16 +37,19 @@ public class PropertyFile {
     private final static String STICKY_TAG = "sticky-tag";    
     private final static String MAX_CONNECTIONS = "max-connections";    
     private final static String FAILOVER = "failover";
-    
+    private final static String LOGFILE = "logfile";
+      
     private final static int DEFAULT_MAINTAIN = 60; 
     private final static int DEFAULT_SOCKET_TIMEOUT = 0;
     private final static int DEFAULT_RECOVER_TIMEOUT = 17;
     private final static String DEFAULT_STICKY_TAG = "JSESSIONID";
     private final static int DEFAULT_MAX_CONNECTIONS = 57;
     private final static String DEFAULT_FAILOVER = "true";
+    private final static String DEFAULT_LOGFILE = null;
     
     private String balanceType;
     private String stickyTag;
+    private String logfile;
     private int maintainIntervall;    
     private int socketTimeout;        
     private int recoverTimeout;
@@ -89,6 +92,7 @@ public class PropertyFile {
         recoverTimeout = getElementValueAsInt(config, RECOVER_TIMEOUT, DEFAULT_RECOVER_TIMEOUT);
         maxConnections = getElementValueAsInt(config, MAX_CONNECTIONS, DEFAULT_MAX_CONNECTIONS);
         failover = Boolean.valueOf(getElementValueAsString(config, FAILOVER, DEFAULT_FAILOVER));
+        logfile = getElementValueAsString(config, LOGFILE, DEFAULT_LOGFILE);
         
         NodeList worker = config.getElementsByTagName(WORKER);
         for (int i=0; i<worker.getLength(); i++) {
@@ -255,6 +259,17 @@ public class PropertyFile {
         this.failover = failover;
     }            
  
+    /**
+     * @return Returns the logfile.
+     */
+    public String getLogfile() {
+        return this.logfile;
+    }
     
-    
+    /**
+     *  @param logfile the Logfile to set.
+     */
+    public void setLogfile(String logfile) {
+        this.logfile = logfile;
+    }
 }
