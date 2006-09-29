@@ -38,24 +38,21 @@ public class ProtocolMananger {
         httpProxy = new HttpProxy(ctx, this.propertyFile, this.log);
     }    
     
-    public int proxyServletRequest(Worker worker, ServletRequest request, ServletResponse response) {
-        int status = Worker.PROXY_WORKER_FAILED;
-
+    public void proxyServletRequest(Worker worker, ServletRequest request, ServletResponse response, RequestStatus status) {
+       
         if (activateConnection()) {
             if (worker.getType().equals(PROTO_HTTP)) {
                 HttpServletRequest httpRequest = (HttpServletRequest) request;
                 HttpServletResponse httpResponse = (HttpServletResponse) response;                
-                status = httpProxy.proxyServletRequest(worker, httpRequest, httpResponse);                
+                httpProxy.proxyServletRequest(worker, httpRequest, httpResponse, status);                
             } else {
                 log.error("protocol not implemented: " + worker.getType());
-                status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                status.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             }
             deactivateConnection();
         } else {
             incRefusedConnections();
-        }
-        
-        return status;        
+        }      
     }
     
     private synchronized boolean activateConnection() {

@@ -90,26 +90,27 @@ public class BalanceServlet implements Servlet {
         HttpServletRequest httpreq = (HttpServletRequest) req;
         HttpServletResponse httpres = (HttpServletResponse) res;                                
         
-        int status = Worker.PROXY_WORKER_FAILED;
+        RequestStatus status = new RequestStatus(Worker.PROXY_WORKER_FAILED, 0);       
+        
         Worker worker = null;
         do {
             worker = getStickyWorker(httpreq);
             if (worker != null) {
                 log.debug("trying worker: " + worker);
-                status = protocolManager.proxyServletRequest(worker, req, res);
+                protocolManager.proxyServletRequest(worker, req, res, status);
             }
-        } while (status == Worker.PROXY_WORKER_FAILED && worker != null);
+        } while (status.getStatusCode() == Worker.PROXY_WORKER_FAILED && worker != null);
         
-        if (status == Worker.PROXY_WORKER_FAILED) {
+        if (status.getStatusCode() == Worker.PROXY_WORKER_FAILED) {
             log.debug("all workers failed to proxy the request");
-            status = HttpStatus.SC_SERVICE_UNAVAILABLE;
+            status.setStatusCode(HttpStatus.SC_SERVICE_UNAVAILABLE);
             TemplateUtil.writeTemplate(ctx, status, httpres.getOutputStream());
-            httpres.setStatus(status);            
+            httpres.setStatus(status.getStatusCode());            
         } else {
             worker.addTrip(System.currentTimeMillis() - tripStart);
         }
         
-        requestLogger.logHttpRequest(httpreq, status, 0);
+        requestLogger.logHttpRequest(httpreq, status);
     }    
         
     /**

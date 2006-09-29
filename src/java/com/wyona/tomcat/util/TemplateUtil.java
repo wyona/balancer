@@ -11,6 +11,8 @@ import java.io.OutputStream;
 
 import javax.servlet.ServletContext;
 
+import com.wyona.tomcat.cluster.RequestStatus;
+
 /**
  * Error page tempalte utility class
  * 
@@ -28,8 +30,8 @@ public class TemplateUtil {
      * @return
      * @throws IOException
      */
-    public static boolean hasTemplate(ServletContext ctx, int statusCode) throws IOException {
-        File template = new File(ctx.getRealPath(TEMPLATE_DIR), Integer.toString(statusCode) + ".html");        
+    public static boolean hasTemplate(ServletContext ctx, RequestStatus status) throws IOException {
+        File template = new File(ctx.getRealPath(TEMPLATE_DIR), Integer.toString(status.getStatusCode()) + ".html");        
         return template.exists() && template.isFile();
     }
     
@@ -52,9 +54,9 @@ public class TemplateUtil {
      * @return
      * @throws IOException
      */
-    public static File getTemplateFile(ServletContext ctx, int statusCode) throws IOException {
-        if (hasTemplate(ctx, statusCode)) {
-            return new File(ctx.getRealPath(TEMPLATE_DIR), Integer.toString(statusCode) + ".html");
+    public static File getTemplateFile(ServletContext ctx, RequestStatus status) throws IOException {
+        if (hasTemplate(ctx, status)) {
+            return new File(ctx.getRealPath(TEMPLATE_DIR), Integer.toString(status.getStatusCode()) + ".html");
         } else {
             return null;
         }
@@ -82,8 +84,8 @@ public class TemplateUtil {
      * @return
      * @throws IOException
      */
-    public static InputStream getTemplateInputStream(ServletContext ctx, int statusCode) throws IOException {
-        File templateFile = getTemplateFile(ctx, statusCode);
+    public static InputStream getTemplateInputStream(ServletContext ctx, RequestStatus status) throws IOException {
+        File templateFile = getTemplateFile(ctx, status);
         if (templateFile != null) {
             return new FileInputStream(templateFile);
         } else {
@@ -114,13 +116,15 @@ public class TemplateUtil {
      * @param out
      * @throws IOException
      */
-    public static void writeTemplate(ServletContext ctx, int statusCode, OutputStream out) throws IOException {
-        InputStream in = getTemplateInputStream(ctx, statusCode);        
+    public static void writeTemplate(ServletContext ctx, RequestStatus status, OutputStream out) throws IOException {
+        InputStream in = getTemplateInputStream(ctx, status);        
         byte[] buf = new byte[4096];
-        int rb = 0;
+        int rb = 0, tb = 0;
         while ((rb = in.read(buf)) > 0) {
             out.write(buf, 0, rb);
+            tb += rb;
         }
+        status.setContentLength(tb);
         in.close();
         out.close();
     }    

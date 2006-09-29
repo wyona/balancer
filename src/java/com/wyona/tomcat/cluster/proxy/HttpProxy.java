@@ -31,6 +31,7 @@ import org.apache.log4j.Logger;
 
 import com.wyona.tomcat.cluster.PropertyFile;
 import com.wyona.tomcat.cluster.ProxyRetryHandler;
+import com.wyona.tomcat.cluster.RequestStatus;
 import com.wyona.tomcat.cluster.worker.Worker;
 import com.wyona.tomcat.util.TemplateUtil;
 
@@ -108,17 +109,12 @@ public class HttpProxy implements ProtocolProxy {
      * @param servletResponse
      * @return
      */
-    public int proxyServletRequest(Worker worker, HttpServletRequest servletRequest, 
-            HttpServletResponse servletResponse) {
+    public void proxyServletRequest(Worker worker, HttpServletRequest servletRequest, 
+            HttpServletResponse servletResponse, RequestStatus status) {
         
-        setServerInfo(servletRequest);
-        
-        // the default status is failed
-        int status = Worker.PROXY_WORKER_FAILED;        
+        setServerInfo(servletRequest);        
                
-        status = proxyHttpRequest(worker, servletRequest, servletResponse);
-        
-        return status;
+        proxyHttpRequest(worker, servletRequest, servletResponse, status);
     }
 
     /**
@@ -128,11 +124,10 @@ public class HttpProxy implements ProtocolProxy {
      * @param assignedWorker
      * @param status
      */
-    private int proxyHttpRequest(Worker worker, HttpServletRequest servletRequest,
-            HttpServletResponse servletResponse) {        
+    private void proxyHttpRequest(Worker worker, HttpServletRequest servletRequest,
+            HttpServletResponse servletResponse, RequestStatus status) {        
         
         boolean success = true;
-        int status = Worker.PROXY_WORKER_FAILED;
         
         HttpMethod method = null;
         if (servletRequest.getMethod().equals(METHOD_GET)) {
@@ -150,7 +145,8 @@ public class HttpProxy implements ProtocolProxy {
             method = createAdditionalMethod(servletRequest.getMethod(), worker.getUri());
             if (method == null) {
                 log.error("request method not implemented: " + servletRequest.getMethod());
-                return HttpStatus.SC_METHOD_NOT_ALLOWED;
+                status.setStatusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
+                return;
             }
         }
         
@@ -162,13 +158,13 @@ public class HttpProxy implements ProtocolProxy {
             copyRequestBody(servletRequest, method);
             rewriteRequestHeaders(servletRequest, method);            
             copyRequestHeaders(servletRequest, method);  
-            status = client.executeMethod(method);            
+            status.setStatusCode(client.executeMethod(method));            
            
             // response to the client
-            servletResponse.setStatus(status);            
+            servletResponse.setStatus(status.getStatusCode());            
             excludeHeaders.clear();
             // send our own page for error messages with a defined template
-            if (status >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {
+            if (status.getStatusCode() >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {
                 excludeHeaders.add(HEADER_CONTENT_LENGTH);
             }
             rewriteResponseHeaders(servletResponse, method, status);
@@ -187,12 +183,11 @@ public class HttpProxy implements ProtocolProxy {
             if (success) {
                 worker.setState(Worker.ALIVE);
             } else {
-                status = Worker.PROXY_WORKER_FAILED;
+                status.setStatusCode(Worker.PROXY_WORKER_FAILED);
             }
             log.debug("released connection");
             method.releaseConnection();        
         }
-        return status;
     }
 
     private HttpMethod createAdditionalMethod(String methodName, String uri) {
@@ -244,8 +239,8 @@ public class HttpProxy implements ProtocolProxy {
     
     }
         
-    private void rewriteResponseHeaders(HttpServletResponse servletResponse, HttpMethod method, int status) {   
-        switch (status) {
+    private void rewriteResponseHeaders(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) {   
+        switch (status.getStatusCode()) {
             case HttpStatus.SC_MOVED_PERMANENTLY:
             case HttpStatus.SC_MOVED_TEMPORARILY:
                 rewriteLocation(servletResponse, method);
@@ -267,27 +262,29 @@ public class HttpProxy implements ProtocolProxy {
         }        
     }
         
-    private void copyResponseBody(HttpServletResponse servletResponse, HttpMethod method, int status) throws IOException {
-        switch (status) {            
+    private void copyResponseBody(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) throws IOException {
+        switch (status.getStatusCode()) {            
             case HttpStatus.SC_MOVED_PERMANENTLY:
             case HttpStatus.SC_MOVED_TEMPORARILY:
                 servletResponse.getWriter().write("0\r\n\r\n");    
             break;
             default:
                 // send our own page for error messages with a defined template
-                if (status >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {                    
+                if (status.getStatusCode() >= HttpStatus.SC_BAD_REQUEST && TemplateUtil.hasTemplate(ctx, status)) {                    
                     TemplateUtil.writeTemplate(ctx, status, servletResponse.getOutputStream());
                 } else {
                     InputStream in = method.getResponseBodyAsStream();
                     OutputStream out = servletResponse.getOutputStream();                    
 
                     if (in != null) {
-                        int rb;
+                        int rb, tb = 0;
                         byte[] buf = new byte[4096];                    
                         while ((rb = in.read(buf)) > 0) {
                             out.write(buf, 0, rb);
+                            tb += rb;
                         }             
                         out.close();
+                        status.setContentLength(tb);
                     }                    
                 }
             break;

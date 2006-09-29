@@ -55,7 +55,7 @@ public class RequestLogger {
      * @param request
      * @param response
      */
-    public synchronized void logHttpRequest(HttpServletRequest request, int status, int contentLength) {        
+    public synchronized void logHttpRequest(HttpServletRequest request, RequestStatus status) {        
         if (this.logWriter != null) {
             
             if (!this.logFile.exists()) {
@@ -72,8 +72,8 @@ public class RequestLogger {
                     (user != null ? user : "") + " " +
                     this.format.format(new Date()) + " " +
                     "\"" + request.getMethod() + " " + request.getRequestURI() + " " + request.getProtocol() + "\" " +
-                    status + " " +
-                    contentLength + " " +
+                    status.getStatusCode() + " " +
+                    status.getContentLength() + " " +
                     "\"" + (referer != null ? referer : "") + "\" " +
                     "\"" + (userAgent != null ? userAgent : "") + "\" ";
             
