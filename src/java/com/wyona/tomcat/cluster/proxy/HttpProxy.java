@@ -239,11 +239,18 @@ public class HttpProxy implements ProtocolProxy {
     
     }
         
+    /**
+     * Rewrite response headers
+     */
     private void rewriteResponseHeaders(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) {   
         switch (status.getStatusCode()) {
             case HttpStatus.SC_MOVED_PERMANENTLY:
+                log.debug("301: " + servletResponse);
             case HttpStatus.SC_MOVED_TEMPORARILY:
+                log.debug("302: " + servletResponse);
+                log.warn("Response header will be rewritten. Original response: " + servletResponse);
                 rewriteLocation(servletResponse, method);
+                log.warn("Rewritten response: " + servletResponse);
             break;
         }                 
     }
@@ -262,10 +269,16 @@ public class HttpProxy implements ProtocolProxy {
         }        
     }
         
+    /**
+     * Copy response body
+     */
     private void copyResponseBody(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) throws IOException {
         switch (status.getStatusCode()) {            
             case HttpStatus.SC_MOVED_PERMANENTLY:
+                log.debug("301 response ...");
             case HttpStatus.SC_MOVED_TEMPORARILY:
+                log.debug("302 response ...");
+                log.warn("Response body is slightly rewritten");
                 servletResponse.getWriter().write("0\r\n\r\n");    
             break;
             default:
