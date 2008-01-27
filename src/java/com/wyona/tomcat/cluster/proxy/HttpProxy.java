@@ -245,10 +245,9 @@ public class HttpProxy implements ProtocolProxy {
     private void rewriteResponseHeaders(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) {   
         switch (status.getStatusCode()) {
             case HttpStatus.SC_MOVED_PERMANENTLY:
-                log.debug("301 response ...");
+                rewriteLocation(servletResponse, method, status);
             case HttpStatus.SC_MOVED_TEMPORARILY:
-                log.warn("302 Response header will be rewritten!");
-                rewriteLocation(servletResponse, method);
+                rewriteLocation(servletResponse, method, status);
             break;
         }                 
     }
@@ -268,7 +267,7 @@ public class HttpProxy implements ProtocolProxy {
     }
         
     /**
-     * Copy response body
+     * Copy response body. TBD: Whyt is only 302 rewritten and not 301?!
      */
     private void copyResponseBody(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) throws IOException {
         switch (status.getStatusCode()) {            
@@ -302,14 +301,26 @@ public class HttpProxy implements ProtocolProxy {
     }
     
     /**
-     *
+     * Rewrite the header location. TBD: Is this really correct?!
+     * Also see http://twistedmatrix.com/trac/ticket/1109, 
      */
-    private void rewriteLocation(HttpServletResponse res, HttpMethod method) {
+    private void rewriteLocation(HttpServletResponse res, HttpMethod method, RequestStatus status) {
         String location = method.getResponseHeader(HEADER_LOCATION).getValue();
-        log.debug("Original location: " + location);
-        location =  "http://" + hostname + ":" + port + location.substring(location.indexOf("/", 8));
-        log.debug("New location: " + location);
-        rewriteResponseHeader(res, HEADER_LOCATION, location);
+        try {
+            java.net.URL lURL = new java.net.URL(location);
+            if (lURL.getHost() != null && lURL.getHost().equals("127.0.0.1")) {
+                log.warn(status.getStatusCode() + " response header will be rewritten!");
+                log.debug("Original location (received by cluster node): " + location);
+                // Use load balancer port instead of cluster node
+                java.net.URL newURL = new java.net.URL(lURL.getProtocol(), lURL.getHost(), port, lURL.getFile());
+                //lURL.set(lURL.getProtocol(), lURL.getHost(), port, lURL.getAuthority(),lURL.getUserInfo(), lURL.getPath(), lURL.getQuery(), lURL.getRef());
+                //location =  "http://" + hostname + ":" + port + location.substring(location.indexOf("/", 8));
+                log.debug("New location: " + newURL);
+                rewriteResponseHeader(res, HEADER_LOCATION, newURL.toString());
+            }
+        } catch (Exception e) {
+            log.error(e, e);
+        }
     }
     
     private void rewriteResponseHeader(HttpServletResponse res, String name, String value) {
@@ -335,6 +346,9 @@ public class HttpProxy implements ProtocolProxy {
         return exclude;
     }
     
+    /**
+     * Get hostname and port of load balancer
+     */
     private void setServerInfo(ServletRequest req) {
         this.hostname = req.getServerName();
         this.port = req.getServerPort();
