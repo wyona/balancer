@@ -245,12 +245,10 @@ public class HttpProxy implements ProtocolProxy {
     private void rewriteResponseHeaders(HttpServletResponse servletResponse, HttpMethod method, RequestStatus status) {   
         switch (status.getStatusCode()) {
             case HttpStatus.SC_MOVED_PERMANENTLY:
-                log.debug("301: " + servletResponse);
+                log.debug("301 response ...");
             case HttpStatus.SC_MOVED_TEMPORARILY:
-                log.debug("302: " + servletResponse);
-                log.warn("Response header will be rewritten. Original response: " + servletResponse);
+                log.warn("302 Response header will be rewritten!");
                 rewriteLocation(servletResponse, method);
-                log.warn("Rewritten response: " + servletResponse);
             break;
         }                 
     }
@@ -277,8 +275,7 @@ public class HttpProxy implements ProtocolProxy {
             case HttpStatus.SC_MOVED_PERMANENTLY:
                 log.debug("301 response ...");
             case HttpStatus.SC_MOVED_TEMPORARILY:
-                log.debug("302 response ...");
-                log.warn("Response body is slightly rewritten");
+                log.warn("302 Response body is slightly rewritten ...");
                 servletResponse.getWriter().write("0\r\n\r\n");    
             break;
             default:
@@ -304,9 +301,14 @@ public class HttpProxy implements ProtocolProxy {
         }
     }
     
+    /**
+     *
+     */
     private void rewriteLocation(HttpServletResponse res, HttpMethod method) {
         String location = method.getResponseHeader(HEADER_LOCATION).getValue();
+        log.debug("Original location: " + location);
         location =  "http://" + hostname + ":" + port + location.substring(location.indexOf("/", 8));
+        log.debug("New location: " + location);
         rewriteResponseHeader(res, HEADER_LOCATION, location);
     }
     
