@@ -46,6 +46,6 @@
   <max-connections>57</max-connections>
   
   <!-- the combined access log file -->
-  <logfile>/home/greg/access.log</logfile>
+  <logfile>/REPLACE_THIS_STRING/access.log</logfile>
 
 </workers>
